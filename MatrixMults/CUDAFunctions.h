@@ -13,7 +13,12 @@ __host__
 Matrix* CudaMatMult( Matrix *A , Matrix *B , int device = 0 );
 
 __host__
-Matrix* CudaAddMats( Matrix *A , Matrix *B, int device = 0 );
+Matrix* CudaAddMats( Matrix *A , Matrix *B , int device = 0 );
+
+__host__
+Matrix* CudaSubMats( Matrix *A , Matrix *B , int device = 0 );
+
+
 
 __host__
 Matrix* CudaHadamardProduct( Matrix *A , Matrix *B , int device = 0 );

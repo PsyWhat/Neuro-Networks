@@ -35,7 +35,11 @@ extern "C"
 
 	EXPORT Matrix* MatrixAddition( Matrix *a , Matrix *b , int maxThreads = 16 );
 
+	EXPORT Matrix* MatrixSubstraction( Matrix *a , Matrix *b , int maxThreads = 16 );
+
 	EXPORT Matrix* MatrixHadamardProduct( Matrix *a , Matrix *b , int maxThreads = 16 );
+
+	EXPORT Matrix* MatrixNegate( Matrix *a , int maxThreads = 16 );
 
 	EXPORT Matrix* MatrixGetRow( Matrix *a , int row );
 
@@ -54,7 +58,11 @@ Matrix* MatrixCPUMultithreadHadamardProduct( Matrix *a , Matrix *b , int maxThre
 
 Matrix* MatrixCPUMultithreadAdd( Matrix *a , Matrix *b , int maxThreads = 16 );
 
+Matrix* MatrixCPUMultithreadSub( Matrix *a , Matrix *b , int maxThreads = 16 );
+
 Matrix* MatrixCPUMultithreadMultDouble( Matrix *a , double d , int maxThreads = 16 );
 
 
 Matrix* MatrixCPUMultithreadTranspose( Matrix *a , int maxThreads = 16 );
+
+Matrix* MatrixNegateMultithread( Matrix *a , int maxThreads = 16 );

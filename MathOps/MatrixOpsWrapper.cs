@@ -74,7 +74,9 @@ namespace MathOps
         public delegate IntPtr MatrixMultiplyDelegate(IntPtr a, IntPtr b, int maxThreads = 16);
         public delegate IntPtr MatrixMultiplyDoubleDelegate(IntPtr a, double d, int maxThreads = 16);
         public delegate IntPtr MatrixAdditionDelegate(IntPtr a, IntPtr b, int maxThreads = 16);
+        public delegate IntPtr MatrixSubstractionDelegate(IntPtr a, IntPtr b, int maxThreads = 16);
         public delegate IntPtr MatrixHadamardProductDelegate(IntPtr a, IntPtr b, int maxThreads = 16);
+        public delegate IntPtr MatrixNegatedDelegate(IntPtr mat, int maxThreads = 16);
 
         public delegate IntPtr MatrixGetRowDelegate(IntPtr a, int row);
         public delegate IntPtr MatrixGetColumnDelegate(IntPtr a, int row);
@@ -94,6 +96,8 @@ namespace MathOps
         public static MatrixHadamardProductDelegate Hadamard;
         public static MatrixGetRowDelegate GetRow;
         public static MatrixGetColumnDelegate GetColumn;
+        public static MatrixSubstractionDelegate Substract;
+        public static MatrixNegatedDelegate Negated;
 
         public static int GetMatRows(IntPtr m)
         {
@@ -183,6 +187,12 @@ namespace MathOps
             GetRow = Marshal.GetDelegateForFunctionPointer<MatrixGetRowDelegate>(GetProcAddress(libPtr, "MatrixGetRow"));
 
             GetColumn = Marshal.GetDelegateForFunctionPointer<MatrixGetColumnDelegate>(GetProcAddress(libPtr, "MatrixGetColumn"));
+
+            Substract = Marshal.GetDelegateForFunctionPointer<MatrixSubstractionDelegate>(GetProcAddress(libPtr, "MatrixSubstraction"));
+
+            Negated = Marshal.GetDelegateForFunctionPointer<MatrixNegatedDelegate>(GetProcAddress(libPtr, "MatrixNegate"));
+
+
 
         }
 

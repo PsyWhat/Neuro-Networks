@@ -428,6 +428,97 @@ Matrix* MatrixCPUMultithreadAdd( Matrix *a , Matrix *b , int maxThreads /*= 16 *
 	return res;
 }
 
+Matrix* MatrixCPUMultithreadSub( Matrix *a , Matrix *b , int maxThreads /*= 16 */ )
+{
+
+	using std::thread;
+	using std::queue;
+	queue<thread*> threads;
+	Matrix *res = NULL;
+	res = MatrixGetNew( a->rows , b->colums );
+
+	int rows = a->rows;
+	int cols = b->colums;
+	if ( rows > cols )
+	{
+		for ( int i = 0; i < rows; ++i )
+		{
+			thread *t = new thread( [i , &cols , &res , &a , &b](){
+				for ( int j = 0; j < cols; ++j )
+				{
+					res->values[i + j * res->rows] = a->values[i + j * a->rows] - b->values[i + j * b->rows];
+
+				}
+			} );
+			threads.push( t );
+			while ( threads.size() > maxThreads )
+			{
+				thread *w = threads.front();
+				if ( w->joinable() )
+				{
+					w->join();
+				} else
+				{
+					threads.pop();
+					delete w;
+				}
+			}
+		}
+		while ( threads.size() > 0 )
+		{
+			thread *w = threads.front();
+			if ( w->joinable() )
+			{
+				w->join();
+			} else
+			{
+				threads.pop();
+				delete w;
+			}
+		}
+	} else
+	{
+
+		for ( int j = 0; j < cols; ++j )
+		{
+			thread *t = new thread( [j , &rows , &res , &a , &b](){
+				for ( int i = 0; i < rows; ++i )
+				{
+					res->values[i + j * res->rows] = a->values[i + j * a->rows] - b->values[i + j * b->rows];
+				}
+			} );
+			threads.push( t );
+			while ( threads.size() > maxThreads )
+			{
+				thread *w = threads.front();
+				if ( w->joinable() )
+				{
+					w->join();
+				} else
+				{
+					threads.pop();
+					delete w;
+				}
+			}
+		}
+		while ( threads.size() > 0 )
+		{
+			thread *w = threads.front();
+			if ( w->joinable() )
+			{
+				w->join();
+			} else
+			{
+				threads.pop();
+				delete w;
+			}
+		}
+
+	}
+
+	return res;
+}
+
 Matrix* MatrixCPUMultithreadMultDouble( Matrix *a , double d , int maxThreads /*= 16 */ )
 {
 	using std::thread;
@@ -635,6 +726,115 @@ Matrix* MatrixGetColumn( Matrix *a , int column )
 		res->values[i] = a->values[i + a->rows * column];
 	}
 
+	return res;
+}
+
+EXPORT Matrix* MatrixSubstraction( Matrix *a , Matrix *b , int maxThreads /*= 16 */ )
+{
+
+	Matrix *res;
+	res = CudaSubMats( a , b );
+	if ( res == NULL )
+	{
+		res = MatrixCPUMultithreadSub( a , b , maxThreads );
+	}
+	return res;
+}
+
+Matrix* MatrixNegateMultithread( Matrix *a , int maxThreads /*= 16 */ )
+{
+
+	using std::thread;
+	using std::queue;
+	queue<thread*> threads;
+	Matrix *res = NULL;
+	res = MatrixGetNew(  a->rows, a->colums );
+
+	int rows = a->rows;
+	int cols = a->colums;
+	if ( rows > cols )
+	{
+		for ( int i = 0; i < rows; ++i )
+		{
+			thread *t = new thread( [i , &cols , &res , &a](){
+				for ( int j = 0; j < cols; ++j )
+				{
+					res->values[i + j * res->rows] = - a->values[i + j * a->rows];
+
+				}
+			} );
+			threads.push( t );
+			while ( threads.size() > maxThreads )
+			{
+				thread *w = threads.front();
+				if ( w->joinable() )
+				{
+					w->join();
+				} else
+				{
+					threads.pop();
+					delete w;
+				}
+			}
+		}
+		while ( threads.size() > 0 )
+		{
+			thread *w = threads.front();
+			if ( w->joinable() )
+			{
+				w->join();
+			} else
+			{
+				threads.pop();
+				delete w;
+			}
+		}
+	} else
+	{
+
+		for ( int j = 0; j < cols; ++j )
+		{
+			thread *t = new thread( [j , &rows , &res , &a](){
+				for ( int i = 0; i < rows; ++i )
+				{
+					res->values[i + j * res->rows] = - a->values[i + j * a->rows];
+				}
+			} );
+			threads.push( t );
+			while ( threads.size() > maxThreads )
+			{
+				thread *w = threads.front();
+				if ( w->joinable() )
+				{
+					w->join();
+				} else
+				{
+					threads.pop();
+					delete w;
+				}
+			}
+		}
+		while ( threads.size() > 0 )
+		{
+			thread *w = threads.front();
+			if ( w->joinable() )
+			{
+				w->join();
+			} else
+			{
+				threads.pop();
+				delete w;
+			}
+		}
+
+	}
+
+	return res;
+}
+
+Matrix* MatrixNegate( Matrix *a , int maxThreads /*= 16 */ )
+{
+	Matrix *res = MatrixNegateMultithread( a , maxThreads );
 	return res;
 }
 

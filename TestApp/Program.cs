@@ -20,8 +20,8 @@ namespace TestApp
         {
             
             Random ra = new Random();
-            MatrixD a = new MatrixD(100, 50);
-            MatrixD b = new MatrixD(50, 400);
+            MatrixD a = new MatrixD(10, 10);
+            MatrixD b = new MatrixD(10, 10);
 
             for(int i = 0; i < a.Rows; ++ i)
             {
@@ -40,11 +40,19 @@ namespace TestApp
             }
 
 
-            MatrixD r = a * b;
+            MatrixD sum = a+b;
+            MatrixD sub = a - b;
+            MatrixD neg = -a;
+            MatrixD had = a&b;
+            
+
+
+            Console.ReadKey();
 
             using (Stream s = File.Create("newfile.bin"))
             {
-                MatrixD.WriteToStream(r, s);
+                MatrixD.WriteToStream(a, s);
+                MatrixD.WriteToStream(b, s);
             }
 
 

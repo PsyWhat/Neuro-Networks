@@ -28,6 +28,8 @@ namespace MathOps
 
         #region Constructors
 
+
+
         protected MatrixD()
         {
             _rows = 0;
@@ -74,6 +76,30 @@ namespace MathOps
 
         #region Operations
 
+        public MatrixD AppliedFunction(Func<double, double> func)
+        {
+            MatrixD res = new MatrixD(this);
+            for (int i = 0; i < res._rows; ++i)
+            {
+                for (int j = 0; j < res._columns; ++j)
+                {
+                    MatrixOpsWrapper.SetElem(res._unmanagedMatrix, i, j, func(MatrixOpsWrapper.GetElem(res._unmanagedMatrix, i, j)));
+                }
+            }
+            return res;
+        }
+
+
+        public void ApplyFunction(Func<double,double> func)
+        {
+            for(int i = 0; i < this._rows; ++ i )
+            {
+                for(int j = 0; j < this._columns; ++ j)
+                {
+                    MatrixOpsWrapper.SetElem(_unmanagedMatrix, i, j, func(MatrixOpsWrapper.GetElem(_unmanagedMatrix, i, j)));
+                }
+            }
+        }
 
         public VectorDRow GetRow(int column = 0)
         {
@@ -133,6 +159,35 @@ namespace MathOps
             {
                 throw new ArgumentException("Size of matrix a must be the same with size of matrix b.");
             }
+        }
+
+
+        /// <summary>
+        /// Substraction of two matrixes
+        /// </summary>
+        /// <param name="a">First matrix</param>
+        /// <param name="b">Second matrix</param>
+        /// <returns>The result of substraction.</returns>
+        public static MatrixD operator -(MatrixD a, MatrixD b)
+        {
+            if (a._rows == b._rows && a._columns == b._columns)
+            {
+                return new MatrixD(MatrixOpsWrapper.Substract(a._unmanagedMatrix, b._unmanagedMatrix));
+            }
+            else
+            {
+                throw new ArgumentException("Size of matrix a must be the same with size of matrix b.");
+            }
+        }
+
+        /// <summary>
+        /// Negate of matrix
+        /// </summary>
+        /// <param name="a">Matrix to negate</param>
+        /// <returns>Negate matrix of a.</returns>
+        public static MatrixD operator -(MatrixD a)
+        {
+            return new MatrixD(MatrixOpsWrapper.Negated(a._unmanagedMatrix));
         }
 
         /// <summary>
@@ -231,8 +286,9 @@ namespace MathOps
                 {
                     res += ",";
                 }
+                res += "\n";
             }
-            res += "]";
+            res += "]\n";
             return res;
         }
 

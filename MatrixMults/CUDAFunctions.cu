@@ -293,6 +293,115 @@ FREE:
 
 
 
+__global__
+void CudaSubMatsKernell( Matrix a , Matrix b , Matrix r )
+{
+	int row = threadIdx.y + blockDim.y * blockIdx.y;
+	int col = threadIdx.x + blockDim.x * blockIdx.x;
+
+	if ( row < r.rows && col < r.colums )
+	{
+		r.values[row + col * r.rows] = a.values[row + col * a.rows] - b.values[row + col * b.rows];
+	}
+
+}
+
+__host__
+Matrix* CudaSubMats( Matrix *A , Matrix *B , int device /*= 0 */ )
+{
+	Matrix *res = NULL;
+
+	Matrix a , b , r;
+	cudaError_t err;
+	int deviceCount;
+
+	a.rows = A->rows;
+	a.colums = A->colums;
+	a.values = NULL;
+
+	b.rows = B->rows;
+	b.colums = B->colums;
+	b.values = NULL;
+
+	r.rows = A->rows;
+	r.colums = A->colums;
+	r.values = NULL;
+
+
+	if ( cudaGetDeviceCount( &deviceCount ) < device )
+	{
+		err = cudaError::cudaErrorInvalidDevice;
+		goto FREE;
+	}
+
+	err = cudaSetDevice( device );
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+	err = cudaMalloc( (void**)(&(a.values)) , sizeof( double ) * a.colums * a.rows );
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+	err = cudaMalloc( (void**)(&b.values) , sizeof( double ) * b.colums * b.rows );
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+	err = cudaMalloc( (void**)(&r.values) , sizeof( double ) * r.colums * r.rows );
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+
+	err = cudaMemcpy( (void*)a.values , A->values , sizeof( double ) * a.colums * a.rows , cudaMemcpyHostToDevice );
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+	err = cudaMemcpy( b.values , B->values , sizeof( double ) * b.colums * b.rows , cudaMemcpyHostToDevice );
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+
+	dim3 blockSize( BLOCK_SIZE , BLOCK_SIZE );
+	dim3 numBlocks( (r.colums / BLOCK_SIZE) + ((r.colums % BLOCK_SIZE == 0) ? 0 : 1) , (r.rows / BLOCK_SIZE) + ((r.rows % BLOCK_SIZE == 0) ? 0 : 1) );
+
+	CudaSubMatsKernell << <numBlocks , blockSize >> > (a , b , r);
+
+	err = cudaPeekAtLastError();
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+	err = cudaGetLastError();
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+	err = cudaDeviceSynchronize();
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+	//checkCudaErrors( cudaPeekAtLastError() );
+	//checkCudaErrors( cudaDeviceSynchronize() );
+
+
+	res = (Matrix*)malloc( sizeof( Matrix ) );
+	res->colums = r.colums;
+	res->rows = r.rows;
+	res->values = NULL;
+	res->values = (double*)malloc( sizeof( double ) * res->colums * res->rows );
+
+	err = cudaMemcpy( res->values , r.values , sizeof( double ) * (res->colums) * (res->rows) , cudaMemcpyDeviceToHost );
+	if ( err != cudaError::cudaSuccess )
+		goto FREE;
+
+FREE:
+
+	cudaFree( a.values );
+	cudaFree( b.values );
+	cudaFree( r.values );
+
+	if ( err != cudaSuccess && res != NULL )
+	{
+		if ( res->values != NULL )
+		{
+			free( res->values );
+		}
+		free( res );
+		res = NULL;
+	}
+
+
+	return res;
+}
+
 
 
 

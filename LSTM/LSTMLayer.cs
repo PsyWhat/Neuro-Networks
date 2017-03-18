@@ -23,23 +23,35 @@ namespace LSTM
         VectorDColumn htmo;
 
 
-        MatrixD tanActivationFunction(MatrixD vec)
+        public static double tanhActivationFunction(double x)
         {
-            throw new NotImplementedException();
+            return Math.Tanh(x);
         }
-        MatrixD sigmoidActivationFunction(MatrixD vec)
+        public static double tanhDiffActivationFunction(double x)
         {
-            throw new NotImplementedException();
+            double th = Math.Tanh(x);
+            return 1.0 - (th * th);
         }
+
+        public static double sigmoidActivationFunction(double x)
+        {
+            return 1.0 / (1.0 + Math.Exp(-x));
+        }
+        public static double sigmoidDiffActivationFunction(double x)
+        {
+            double sigm = sigmoidActivationFunction(x);
+            return sigm * (1.0 - sigm);
+        }
+        
 
         public VectorDColumn Process(VectorDColumn data)
         {
-            var ft = sigmoidActivationFunction( weightsForgetGate * VectorDColumn.Concatenation(htmo,data) +  bF);
-            var it = sigmoidActivationFunction(weightsIGate * VectorDColumn.Concatenation(htmo, data) + bI);
-            var Cst = tanActivationFunction(weightsCGate * VectorDColumn.Concatenation(htmo, data) + bC);
+            var ft =  (weightsForgetGate * VectorDColumn.Concatenation(htmo,data) +  bF); ft.ApplyFunction(sigmoidActivationFunction);
+            var it = (weightsIGate * VectorDColumn.Concatenation(htmo, data) + bI); it.ApplyFunction(sigmoidActivationFunction);
+            var Cst = (weightsCGate * VectorDColumn.Concatenation(htmo, data) + bC);Cst.ApplyFunction(tanhActivationFunction);
             var Ct = ft & ctmo + it & Cst;
-            var ot = sigmoidActivationFunction( weightsOutputGate * VectorDColumn.Concatenation(htmo,data) + bO );
-            var ht = ot & tanActivationFunction(Ct);
+            var ot = ( weightsOutputGate * VectorDColumn.Concatenation(htmo,data) + bO ); ot.ApplyFunction(sigmoidActivationFunction);
+            var ht = ot & (Ct.AppliedFunction(tanhActivationFunction));
 
             htmo = ht.GetColumn();
             ctmo = Ct.GetColumn();
