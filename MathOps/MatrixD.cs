@@ -36,6 +36,12 @@ namespace MathOps
             _columns = 0;
             _unmanagedMatrix = IntPtr.Zero;
         }
+
+        /// <summary>
+        /// New matrix, filled with zeroes.
+        /// </summary>
+        /// <param name="rows">Number of the rows.</param>
+        /// <param name="columns">Number of the columns.</param>
         public MatrixD(int rows, int columns)
         {
             if(rows > 0 && columns > 0)
@@ -44,12 +50,41 @@ namespace MathOps
                 _rows = rows;
                 _columns = columns;
                 _unmanagedMatrix = MatrixOpsWrapper.New(_rows, _columns);
+                MatrixOpsWrapper.FillWithNulls(_unmanagedMatrix);
 
             }else
             {
                 throw new ArgumentException("Size of matrix should pe positive non null.");
             }
         }
+
+
+
+       
+        /// <summary>
+        /// Creates new matrix, and filling it with elements, provided by ititializer
+        /// </summary>
+        /// <param name="rows">Number of rows.</param>
+        /// <param name="columns">Number of columns.</param>
+        /// <param name="initializer">Initializer.</param>
+        public MatrixD(int rows, int columns, Func< int, int, double> initializer)
+        {
+            if (rows > 0 && columns > 0)
+
+            {
+                _rows = rows;
+                _columns = columns;
+                _unmanagedMatrix = MatrixOpsWrapper.New(_rows, _columns);
+
+                InitElements(initializer);
+
+            }
+            else
+            {
+                throw new ArgumentException("Size of matrix should pe positive non null.");
+            }
+        }
+
 
         public MatrixD(MatrixD copy)
         {
@@ -101,6 +136,17 @@ namespace MathOps
             }
         }
 
+        public void InitElements(Func<int,int, double> initializer)
+        {
+            for(int i = 0; i < this._rows;++i)
+            {
+                for(int j = 0; j < this._columns; ++ j)
+                {
+                    this[i, j] = initializer(i, j);
+                }
+            }
+        }
+
         public VectorDRow GetRow(int column = 0)
         {
             return new VectorDRow(new MatrixD(MatrixOpsWrapper.GetRow(_unmanagedMatrix, column)));
@@ -108,6 +154,11 @@ namespace MathOps
         public VectorDColumn GetColumn(int row = 0)
         {
             return new VectorDColumn(new MatrixD(MatrixOpsWrapper.GetColumn(_unmanagedMatrix, row)));
+        }
+
+        public void FillWithZeroes()
+        {
+            MatrixOpsWrapper.FillWithNulls(this._unmanagedMatrix);
         }
 
         /// <summary>

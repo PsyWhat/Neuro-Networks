@@ -78,5 +78,45 @@ namespace MathOps
             return res;
         }
 
+        public static VectorDColumn operator*(MatrixD m, VectorDColumn vec)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public static VectorDColumn operator &(VectorDColumn a, VectorDColumn b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static VectorDColumn operator &(MatrixD a, VectorDColumn b)
+        {
+            throw new NotImplementedException();
+        }
+        public static VectorDColumn operator &(VectorDColumn a, MatrixD b)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public static VectorDColumn operator +(VectorDColumn a, VectorDColumn b)
+        {
+            throw new NotImplementedException();
+        }
+        public static VectorDColumn operator +(MatrixD m, VectorDColumn vec)
+        {
+            throw new NotImplementedException();
+        }
+        public static VectorDColumn operator +( VectorDColumn vec, MatrixD m)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public VectorDColumn AppliedFunction(Func<double,double> fun)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
